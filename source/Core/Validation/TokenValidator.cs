@@ -294,7 +294,7 @@ namespace IdentityServer3.Core.Validation
 
             if (token == null)
             {
-                LogError("Token handle not found");
+                LogWarn("Token handle not found");
                 return Invalid(Constants.ProtectedResourceErrors.InvalidToken);
             }
 
@@ -308,7 +308,7 @@ namespace IdentityServer3.Core.Validation
 
             if (DateTimeOffsetHelper.UtcNow >= token.CreationTime.AddSeconds(token.Lifetime))
             {
-                LogError("Token expired.");
+                LogWarn("Token expired.");
 
                 await _tokenHandles.RemoveAsync(tokenHandle);
                 return Invalid(Constants.ProtectedResourceErrors.ExpiredToken);
@@ -369,6 +369,12 @@ namespace IdentityServer3.Core.Validation
         {
             var json = LogSerializer.Serialize(_log);
             Logger.ErrorFormat("{0}\n{1}", message, json);
+        }
+
+        private void LogWarn(string message)
+        {
+            var json = LogSerializer.Serialize(_log);
+            Logger.WarnFormat("{0}\n{1}", message, json);
         }
 
         private void LogSuccess()
