@@ -20,12 +20,22 @@ using IdentityServer3.Core.Logging;
 using Microsoft.Owin;
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Owin
 {
     static class ConfigureHttpLoggingExtension
     {
+        public static Regex regex = new Regex(
+              "(?<=password=)(.*)(?=&)",
+            RegexOptions.Multiline
+            | RegexOptions.CultureInvariant
+            | RegexOptions.Compiled
+            );
+
+        public static string regexReplace ="*****";
+
         static readonly ILog Logger = LogProvider.GetLogger("HTTP Logging");
 
         public static IAppBuilder ConfigureHttpLogging(this IAppBuilder app, LoggingOptions options)
@@ -60,15 +70,18 @@ namespace Owin
 
         private static async Task LogRequest(IOwinRequest request)
         {
+           var body = await request.ReadBodyAsStringAsync();
+           var scrubbedBody = regex.Replace(body, regexReplace);
+
             var reqLog = new
             {
                 Method = request.Method,
                 Url = request.Uri.AbsoluteUri,
                 Headers = request.Headers,
-                Body = await request.ReadBodyAsStringAsync()
+                Body = scrubbedBody
             };
-
-            Logger.Debug("HTTP Request" + Environment.NewLine + LogSerializer.Serialize(reqLog));
+        
+        Logger.Debug("HTTP Request" + Environment.NewLine + LogSerializer.Serialize(reqLog));
         }
 
         private static async Task LogResponse(IOwinResponse response)
