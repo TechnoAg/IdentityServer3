@@ -26,6 +26,7 @@ using System.Collections.Specialized;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using IdentityServer3.Core.Results;
 
 namespace IdentityServer3.Core.Endpoints
 {
@@ -94,7 +95,7 @@ namespace IdentityServer3.Core.Endpoints
                 Logger.Info("Returning error: " + result.Error);
                 await RaiseFailureEventAsync(result.Error);
 
-                return BadRequest(result.Error);
+                return Error(result.Error);
             }
 
             var response = result.Claims.ToClaimsDictionary();
@@ -113,6 +114,11 @@ namespace IdentityServer3.Core.Endpoints
         private async Task RaiseFailureEventAsync(string error)
         {
             await _events.RaiseFailureEndpointEventAsync(EventConstants.EndpointNames.AccessTokenValidation, error);
+        }
+
+        IHttpActionResult Error(string error, string description = null)
+        {
+            return new ProtectedResourceErrorResult(error, description);
         }
     }
 }
