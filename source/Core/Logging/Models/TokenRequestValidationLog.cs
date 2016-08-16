@@ -54,8 +54,6 @@ namespace IdentityServer3.Core.Logging
             //Use case insensitive dictionary to avoid logging sensitive data just because it Password, not password. 
             Raw = new Dictionary<string, string>(request.Raw.ToDictionary(), StringComparer.CurrentCultureIgnoreCase);
 
-            var ignoreCaseRaw = new Dictionary<string, string>(Raw, StringComparer.CurrentCultureIgnoreCase);
-            
             foreach (var field in SensitiveData.Where(field => Raw.ContainsKey(field)))
             {
                 Raw[field] = scrubValue;
