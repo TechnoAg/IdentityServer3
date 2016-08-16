@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using IdentityServer3.Core.Extensions;
 using IdentityServer3.Core.Validation;
 using System.Collections.Generic;
@@ -49,8 +50,11 @@ namespace IdentityServer3.Core.Logging
         public TokenRequestValidationLog(ValidatedTokenRequest request)
         {
             const string scrubValue = "******";
-            
-            Raw = request.Raw.ToDictionary();
+
+            //Use case insensitive dictionary to avoid logging sensitive data just because it Password, not password. 
+            Raw = new Dictionary<string, string>(request.Raw.ToDictionary(), StringComparer.CurrentCultureIgnoreCase);
+
+            var ignoreCaseRaw = new Dictionary<string, string>(Raw, StringComparer.CurrentCultureIgnoreCase);
             
             foreach (var field in SensitiveData.Where(field => Raw.ContainsKey(field)))
             {
