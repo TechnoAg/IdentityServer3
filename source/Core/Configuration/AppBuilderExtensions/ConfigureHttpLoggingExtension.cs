@@ -32,6 +32,7 @@ namespace Owin
             RegexOptions.Multiline
             | RegexOptions.CultureInvariant
             | RegexOptions.Compiled
+            | RegexOptions.IgnoreCase
             );
 
         public static string regexReplace ="*****";
